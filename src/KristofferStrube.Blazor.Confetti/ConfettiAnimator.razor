@@ -1,0 +1,57 @@
+﻿@using KristofferStrube.Blazor.SVGAnimation
+@using Microsoft.JSInterop
+<path fill="@ConfettiPiece.Color" d="M -20 -20 l 10 2 2 10 -10 -2 z">
+    <animateMotion @ref=animateReference
+                   dur="@(ConfettiPiece.Milliseconds)ms"
+                   repeatCount="1"
+                   path="@SmoothPath(ConfettiPiece.Positions)"
+                   begin="indefinite" />
+</path>
+
+@code {
+    private ElementReference animateReference { get; set; }
+    private SVGAnimationElement? animationElement;
+
+    [Inject]
+    public required IJSRuntime JSRuntime { get; set; }
+
+    [Parameter, EditorRequired]
+    public required ConfettiPiece ConfettiPiece { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            animationElement = await SVGAnimationElement.CreateAsync(JSRuntime, animateReference);
+
+            await animationElement.BeginElementAsync();
+            await animationElement.EndElementAtAsync(ConfettiPiece.Milliseconds);
+        }
+        catch (Exception e)
+        {
+            #if DEBUG
+            Console.WriteLine(e);
+            #endif
+        }
+    }
+
+    private string SmoothPath((double X, double Y)[] points)
+    {
+        // Parameter for smoothness of path in interval [0, 0.5]
+        double smoothness = 1.0 / 3.0;
+
+        var result = "";
+        if (points.Length >= 2)
+        {
+            result = $"M {points[0].X.AsString()} {points[0].Y.AsString()} ";
+            for (int i = 1; i < points.Length - 1; i++)
+            {
+                result += $"S {(points[i - 1].X * smoothness / 2 + points[i].X - points[i + 1].X * smoothness / 2).AsString()} {(points[i - 1].Y * smoothness / 2 + points[i].Y - points[i + 1].Y * smoothness / 2).AsString()} {points[i].X.AsString()} {points[i].Y.AsString()} ";
+            }
+            result += $"S {(points[^2].X * smoothness + points[^1].X * (1 - smoothness)).AsString()} {(points[^2].Y * smoothness + points[^1].Y * (1 - smoothness)).AsString()} {points[^1].X.AsString()} {points[^1].Y.AsString()} ";
+        }
+        return result;
+    }
+}

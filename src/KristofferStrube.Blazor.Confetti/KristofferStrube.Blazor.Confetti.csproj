@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Title>Blazor Confetti</Title>
+    <Description>Confetti component for Blazor.</Description>
+    <PackageId>KristofferStrube.Blazor.Confetti</PackageId>
+    <PackageTags>Blazor;Confetti;SVG;Animation;SVGAnimation;JSInterop</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageVersion>0.1.0</PackageVersion>
+    <Authors>Kristoffer Strube</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KristofferStrube.Blazor.SVGAnimation" Version="0.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

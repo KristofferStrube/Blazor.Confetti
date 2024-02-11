@@ -1,0 +1,102 @@
+﻿@using KristofferStrube.Blazor.DOM.Extensions
+@using Microsoft.JSInterop
+@implements IDisposable
+
+<svg width="100%" height="100%" style="position:absolute;left:0;top:0;pointer-events:none;z-index:1000;">
+    @foreach (var confettiPiece in confettiPieces)
+    {
+        <ConfettiAnimator @key=confettiPiece ConfettiPiece="confettiPiece" />
+    }
+</svg>
+
+@code {
+    private double width;
+    private double height;
+    private bool playing = false;
+
+    [Inject]
+    public required IJSRuntime JSRuntime { get; set; }
+
+    [Inject]
+    public required ConfettiService ConfettiService { get; set; }
+
+    List<ConfettiPiece> confettiPieces = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        ConfettiService.Activated += HandleActivated;
+
+        IJSObjectReference windowReference = await JSRuntime.InvokeAsync<IJSObjectReference>("window.valueOf");
+
+        var helper = await JSRuntime.GetHelperAsync();
+        width = await helper.InvokeAsync<double>("getAttribute", windowReference, "innerWidth");
+        height = await helper.InvokeAsync<double>("getAttribute", windowReference, "innerHeight");
+    }
+
+    public record ClientRect(double x, double y, double width, double height);
+
+    public async void HandleActivated(object? sender, ConfettiOptions options)
+    {
+        (double X, double Y)? originPosition = null;
+        if (options.Origin is {} origin)
+        {
+            var helper = await JSRuntime.GetHelperAsync();
+            var jSInstance = await helper.InvokeAsync<IJSObjectReference>("getJSReference", origin);
+            var client = await jSInstance.InvokeAsync<ClientRect>("getBoundingClientRect");
+            originPosition = (X: client.x + client.width / 2, Y: client.y + client.height / 2);
+        }
+
+        var newPieces = Enumerable
+            .Range(0, options.Pieces)
+            .Select(i =>
+                new ConfettiPiece(
+                    options.Colors[Random.Shared.Next(options.Colors.Length)],
+                    options.Milliseconds + (int)((Random.Shared.NextDouble() * 2 - 1) * options.VariationInMilliseconds),
+                    options.Mode switch
+                    {
+                        ConfettiOriginMode.FromBottomCenter => FromBottomCenterPositions(),
+                        ConfettiOriginMode.FromElement when originPosition is not null => FromElementPositions(originPosition.Value),
+                        _ => FromBottomCenterPositions()
+                    }
+                )
+            ).ToList();
+
+        lock (confettiPieces)
+        {
+            confettiPieces.AddRange(newPieces);
+        }
+
+        StateHasChanged();
+        await Task.Delay(options.Milliseconds + options.VariationInMilliseconds + 100);
+        lock (confettiPieces)
+        {
+            confettiPieces = confettiPieces.Where(p => !newPieces.Contains(p)).ToList();
+        }
+        StateHasChanged();
+
+
+    }
+
+    private (double X, double Y)[] FromBottomCenterPositions()
+    {
+        var x = Random.Shared.NextDouble() - 0.5;
+        var y = Random.Shared.NextDouble();
+        var end = Random.Shared.NextDouble();
+        return [(width / 2, height), (width / 2 + x * width / 3 * 2, height / 2 - y * height / 2), (width / 2 + x * width / 3 * 4, height + end * height / 3)];
+    }
+
+    private (double X, double Y)[] FromElementPositions((double x, double y) originPosition)
+    {
+        var x = Random.Shared.NextDouble() - 0.5;
+        var y = Random.Shared.NextDouble();
+        var end = Random.Shared.NextDouble();
+        return [originPosition, (originPosition.x + x * width / 3 * 2, height / 2 - y * height / 2), (originPosition.x + x * width / 3 * 4, height + end * height / 3)];
+    }
+
+    public void Dispose()
+    {
+        ConfettiService.Activated -= HandleActivated;
+    }
+}

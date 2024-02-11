@@ -1,0 +1,50 @@
+﻿@page "/counter"
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="FromBottom">Confetti from bottom of page</button>
+<br />
+<br />
+<button class="btn btn-primary" @onclick="WithCustomColors">Confetti with custom colors</button>
+<br />
+<br />
+<button class="btn btn-primary" @onclick="Slowly">Slow Confetti</button>
+
+<button @ref=button class="btn btn-primary" style="position:absolute;top:50vh;left:40vw;" @onclick="FromButton">Confetti from this button</button>
+
+@code {
+    private ElementReference button;
+
+    [Inject]
+    public required ConfettiService ConfettiService { get; set; }
+
+    private int currentCount = 0;
+
+    private void FromBottom()
+    {
+        ConfettiService.Activate(new() { Mode = ConfettiOriginMode.FromBottomCenter });
+        currentCount++;
+    }
+
+    private void WithCustomColors()
+    {
+        ConfettiService.Activate(new() { Mode = ConfettiOriginMode.FromBottomCenter, Colors = ["silver", "gold", "#B87333"] });
+        currentCount++;
+    }
+
+    private void Slowly()
+    {
+        ConfettiService.Activate(new() { Mode = ConfettiOriginMode.FromBottomCenter, Milliseconds = 3000, VariationInMilliseconds = 500 });
+        currentCount++;
+    }
+
+    private void FromButton()
+    {
+        ConfettiService.Activate(new() { Mode = ConfettiOriginMode.FromElement, Origin = button });
+        currentCount++;
+    }
+}
