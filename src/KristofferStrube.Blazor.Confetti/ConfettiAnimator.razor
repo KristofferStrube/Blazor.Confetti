@@ -1,7 +1,7 @@
 ﻿@using KristofferStrube.Blazor.SVGAnimation
 @using Microsoft.JSInterop
 
-<g>
+<g style="visibility: @(visible ? "visible" : "hidden")">
     @if (ConfettiPiece.Type is ConfettiType.SkewedRectangle)
     {
         <path fill="@ConfettiPiece.Color" d="M -20 -20 l @ConfettiPiece.Size 2 2 @ConfettiPiece.Size -@ConfettiPiece.Size -2 z"></path>
@@ -101,6 +101,7 @@
 @code {
     private ElementReference animateReference { get; set; }
     private SVGAnimationElement? animationElement;
+    private bool visible = false;
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
@@ -118,6 +119,8 @@
 
             await animationElement.BeginElementAsync();
             await animationElement.EndElementAtAsync(ConfettiPiece.Milliseconds);
+            visible = true;
+            StateHasChanged();
         }
         catch (Exception e)
         {
