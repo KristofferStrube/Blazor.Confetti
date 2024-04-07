@@ -3,5 +3,6 @@
 public enum ConfettiOriginMode
 {
     FromBottomCenter,
-    FromElement
+    FromTopCurtain,
+    FromElement,
 }

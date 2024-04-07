@@ -10,10 +10,19 @@
 <button class="btn btn-primary" @onclick="FromBottom">Confetti from bottom of page</button>
 <br />
 <br />
-<button class="btn btn-primary" @onclick="WithCustomColors">Confetti with custom colors</button>
+<button class="btn btn-primary" @onclick="WithCustomColors">Confetti with custom colors and size</button>
 <br />
 <br />
-<button class="btn btn-primary" @onclick="Slowly">Slow Confetti</button>
+<button class="btn btn-primary" @onclick="Slowly">Slow confetti</button>
+<br />
+<br />
+<button class="btn btn-primary" @onclick="Heart">Heart confetti from top</button>
+<br />
+<br />
+<button class="btn btn-primary" @onclick="Clapping">Hands clapping from bottom</button>
+<br />
+<br />
+<button class="btn btn-primary" @onclick="Stars">Stars from top</button>
 
 <button @ref=button class="btn btn-primary" style="position:absolute;top:50vh;left:40vw;" @onclick="FromButton">Confetti from this button</button>
 
@@ -33,13 +42,64 @@
 
     private void WithCustomColors()
     {
-        ConfettiService.Activate(new() { Mode = ConfettiOriginMode.FromBottomCenter, Colors = ["silver", "gold", "#B87333"] });
+        ConfettiService.Activate(new()
+            {
+                Mode = ConfettiOriginMode.FromBottomCenter,
+                Colors = ["silver", "gold", "#B87333"],
+                Size = 10,
+                SizeVariation = 5
+            });
         currentCount++;
     }
 
     private void Slowly()
     {
         ConfettiService.Activate(new() { Mode = ConfettiOriginMode.FromBottomCenter, Milliseconds = 3000, VariationInMilliseconds = 500 });
+        currentCount++;
+    }
+
+    private void Heart()
+    {
+        ConfettiService.Activate(new()
+            {
+                Type = ConfettiType.Heart,
+                Size = 30,
+                SizeVariation = 30,
+                Mode = ConfettiOriginMode.FromTopCurtain,
+                Milliseconds = 3000,
+                VariationInMilliseconds = 500,
+                Pieces = 50
+            });
+        currentCount++;
+    }
+
+    private void Clapping()
+    {
+        ConfettiService.Activate(new()
+            {
+                Type = ConfettiType.HandsClapping,
+                Size = 200,
+                SizeVariation = 0,
+                Mode = ConfettiOriginMode.FromBottomCenter,
+                Milliseconds = 2000,
+                VariationInMilliseconds = 0,
+                Pieces = 5
+            });
+        currentCount++;
+    }
+
+    private void Stars()
+    {
+        ConfettiService.Activate(new()
+            {
+                Type = ConfettiType.Star,
+                Size = 30,
+                SizeVariation = 30,
+                Mode = ConfettiOriginMode.FromTopCurtain,
+                Milliseconds = 2000,
+                VariationInMilliseconds = 500,
+                Pieces = 100
+            });
         currentCount++;
     }
 

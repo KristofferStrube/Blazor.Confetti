@@ -10,6 +10,21 @@ public class ConfettiOptions : EventArgs
     public int Pieces { get; set; } = 300;
 
     /// <summary>
+    /// The width of each confetti piece. The default is <c>10</c>.
+    /// </summary>
+    public int Size { get; set; } = 10;
+
+    /// <summary>
+    /// The amount that the size can vary. The default is <c>10</c>.
+    /// </summary>
+    public int SizeVariation { get; set; } = 1;
+
+    /// <summary>
+    /// The type of confetti there will be used.
+    /// </summary>
+    public ConfettiType Type { get; set; } = ConfettiType.SkewedRectangle;
+
+    /// <summary>
     /// The time that the average confetti piece will be animated for. The default is <c>1000</c> milliseconds.
     /// </summary>
     public int Milliseconds { get; set; } = 1000;
